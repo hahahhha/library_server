@@ -22,13 +22,15 @@ const uservalidation = require('./validations/userValid.js');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: '*'
+}));
 app.use(express.json());
 app.use(cookieParser('secret', { httpOnly: true }));
 app.use('/images', express.static(__dirname + '/images'));
 
 const start = async () => {
-    mongoose.connect('mongodb+srv://mishaplaying:TkSQ7LktafBKkSiP@library.czqfzk0.mongodb.net/library');
+    mongoose.connect('mongodb+srv://mishaplaying:TkSQ7LktafBKkSiP@library.czqfzk0.mongodb.net/?retryWrites=true&w=majority&appName=library');
     console.log();
     try {
         app.listen(PORT, () => {
