@@ -24,7 +24,7 @@ const app = express();
 
 app.use(cors({
     origin: '*',
-    
+
 }));
 app.use(express.json());
 app.use(cookieParser('secret', { httpOnly: true }));
@@ -66,19 +66,24 @@ start();
 // })
 
 app.get('/users/me/role/:token', async (req, res) => {
-    const token = req.params.token;
-    if (!checkAuth(token)) {
-        return res.status(401).json({
-            msg: 'Пользователь не авторизован'
+    try {
+        const token = req.params.token;
+        if (!checkAuth(token)) {
+            return res.status(401).json({
+                msg: 'Пользователь не авторизован'
+            })
+        }
+
+        const userId = jwt.verify(token, secretKey).userId;
+
+        const user = await User.findById(userId);
+        return res.status(200).json({
+            role: user.role
         })
+    } catch (error) {
+        console.log('Ошибка /users/me/role/:token')
     }
 
-    const userId = jwt.verify(token, secretKey).userId;
-
-    const user = await User.findById(userId);
-    return res.status(200).json({
-        role: user.role
-    })
 });
 
 app.get('/users/isadmin/:token', async (req, res) => {
@@ -346,7 +351,7 @@ app.post('/auth/login', async (req, res) => {
         };
 
         const token = jwt.sign(payload, secretKey, {
-            expiresIn: '1h'
+            expiresIn: '30d'
         });
 
         return res
